@@ -6,7 +6,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 SECRET_KEY = os.getenv("SECRET_KEY", "iris-clave-secreta-cambiar-en-produccion")
 APP_USERNAME = os.getenv("APP_USERNAME", "iris")
-APP_PASSWORD = os.getenv("APP_PASSWORD", "iris1234")
+APP_PASSWORD = os.getenv("APP_PASSWORD", "Residencias26!")
 
 security = HTTPBearer()
 
