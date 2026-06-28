@@ -25,8 +25,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# API routes — deben registrarse ANTES del catch-all del frontend
 app.include_router(patients.router)
 app.include_router(alerts.router)
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
 
 scheduler = None
 
@@ -40,17 +45,11 @@ def shutdown():
     if scheduler:
         scheduler.shutdown()
 
-# Servir el frontend construido en producción
+# Servir el frontend en producción — catch-all al final
 FRONTEND_BUILD = pathlib.Path(__file__).parent / "frontend_dist"
 if FRONTEND_BUILD.exists():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_BUILD / "assets")), name="assets")
 
     @app.get("/{full_path:path}")
     def serve_frontend(full_path: str):
-        if full_path.startswith("api/"):
-            return None
         return FileResponse(str(FRONTEND_BUILD / "index.html"))
-
-@app.get("/api/health")
-def health():
-    return {"status": "ok"}
