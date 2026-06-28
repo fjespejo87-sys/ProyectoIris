@@ -1,11 +1,17 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAlertCount } from '../hooks/useAlerts'
+import { clearToken } from '../hooks/useAuth'
 
 export default function Navbar({ darkMode, setDarkMode }) {
   const { count } = useAlertCount()
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
+
+  function handleLogout() {
+    clearToken()
+    navigate('/login')
+  }
 
   function handleSearch(e) {
     e.preventDefault()
@@ -73,6 +79,14 @@ export default function Navbar({ darkMode, setDarkMode }) {
           <Link to="/nuevo" className="ml-1 bg-white text-blue-700 font-semibold px-3 py-1.5 rounded-lg text-sm hover:bg-blue-50 transition-colors">
             + Paciente
           </Link>
+
+          <button
+            onClick={handleLogout}
+            className="p-2 text-blue-200 hover:text-white hover:bg-blue-600 rounded-lg transition-colors text-sm"
+            title="Cerrar sesión"
+          >
+            🚪
+          </button>
         </div>
       </div>
     </nav>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { isAuthenticated } from './hooks/useAuth'
 import Navbar from './components/Navbar'
 import Dashboard from './pages/Dashboard'
 import PatientList from './pages/PatientList'
@@ -7,6 +8,11 @@ import PatientDetail from './pages/PatientDetail'
 import PatientForm from './pages/PatientForm'
 import SearchResults from './pages/SearchResults'
 import AlertsPage from './pages/AlertsPage'
+import LoginPage from './pages/LoginPage'
+
+function RequireAuth({ children }) {
+  return isAuthenticated() ? children : <Navigate to="/login" replace />
+}
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -26,18 +32,25 @@ export default function App() {
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <BrowserRouter>
-          <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
-          <main className="pb-12">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/residencia/:residence" element={<PatientList />} />
-              <Route path="/paciente/:id" element={<PatientDetail />} />
-              <Route path="/paciente/:id/editar" element={<PatientForm />} />
-              <Route path="/nuevo" element={<PatientForm />} />
-              <Route path="/buscar" element={<SearchResults />} />
-              <Route path="/alertas" element={<AlertsPage />} />
-            </Routes>
-          </main>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/*" element={
+              <RequireAuth>
+                <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+                <main className="pb-12">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/residencia/:residence" element={<PatientList />} />
+                    <Route path="/paciente/:id" element={<PatientDetail />} />
+                    <Route path="/paciente/:id/editar" element={<PatientForm />} />
+                    <Route path="/nuevo" element={<PatientForm />} />
+                    <Route path="/buscar" element={<SearchResults />} />
+                    <Route path="/alertas" element={<AlertsPage />} />
+                  </Routes>
+                </main>
+              </RequireAuth>
+            } />
+          </Routes>
         </BrowserRouter>
       </div>
     </div>

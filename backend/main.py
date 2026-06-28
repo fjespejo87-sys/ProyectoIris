@@ -1,16 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
-import os
 import pathlib
 
 load_dotenv()
 
 from database import engine, Base
 import models
-from routers import patients, alerts
+from auth import verify_token
+from routers import patients, alerts, auth
 from scheduler import start_scheduler
 
 Base.metadata.create_all(bind=engine)
@@ -25,9 +25,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API routes — deben registrarse ANTES del catch-all del frontend
-app.include_router(patients.router)
-app.include_router(alerts.router)
+# Ruta pública: login (sin autenticación)
+app.include_router(auth.router)
+
+# Rutas protegidas: requieren token válido
+app.include_router(patients.router, dependencies=[Depends(verify_token)])
+app.include_router(alerts.router, dependencies=[Depends(verify_token)])
 
 @app.get("/api/health")
 def health():
